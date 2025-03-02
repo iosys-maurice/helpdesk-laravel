@@ -115,7 +115,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -128,7 +128,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -152,23 +152,55 @@ class TicketResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('owner.name')
+                    ->translateLabel()
+                    ->searchable()
+                    ->wrap()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('title')
                     ->translateLabel()
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->translateLabel()
                     ->sortable()
+                    ->since()
+                    ->tooltip(fn (Ticket $record) => $record->created_at)
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('problemCategory.name')
                     ->searchable()
                     ->label(__('Problem Category'))
+                    ->wrap()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('ticketStatus.name')
                     ->label(__('Status'))
+                    ->badge()
                     ->sortable(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('unit_id')
+                    ->options(Unit::all()
+                        ->pluck('name', 'id'))
+                    ->label(__('Work Unit'))
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('problem_category_id')
+                    ->options(ProblemCategory::all()
+                        ->pluck('name', 'id'))
+                    ->label(__('Problem Category'))
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('priority_id')
+                    ->options(Priority::all()
+                        ->pluck('name', 'id'))
+                    ->multiple()
+                    ->label(__('Priority'))
+                    ->searchable(),
+                Tables\Filters\SelectFilter::make('ticket_statuses_id')
+                    ->options(TicketStatus::all()
+                        ->pluck('name', 'id'))
+                    ->multiple()
+                    ->label(__('Status'))
+                    ->searchable(),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
