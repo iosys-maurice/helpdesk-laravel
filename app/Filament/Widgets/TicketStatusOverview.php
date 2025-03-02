@@ -14,6 +14,7 @@ class TicketStatusOverview extends BaseWidget
     protected function getStats(): array
     {
         $tickets = Ticket::all();
+
         return [
             Stat::make('Total Tickets', $tickets->count())
                 ->icon('heroicon-o-ticket')
