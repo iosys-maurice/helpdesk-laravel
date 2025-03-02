@@ -6,15 +6,15 @@ use App\Filament\Resources\TicketResource;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Form;
 use Filament\Notifications\Actions\Action;
 use Filament\Notifications\Notification;
-use Filament\Resources\Form;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Resources\Table;
 use Filament\Tables;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Livewire\Component as Livewire;
 
 class CommentsRelationManager extends RelationManager
@@ -28,7 +28,7 @@ class CommentsRelationManager extends RelationManager
         return false;
     }
 
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -37,14 +37,14 @@ class CommentsRelationManager extends RelationManager
                         ->required()
                         ->maxLength(255),
                     Forms\Components\FileUpload::make('attachments')
-                        ->directory('comment-attachments/' . date('m-y'))
+                        ->directory('comment-attachments/'.date('m-y'))
                         ->maxSize(2000)
                         ->enableDownload(),
-                ])
+                ]),
             ]);
     }
 
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->columns([
@@ -57,7 +57,7 @@ class CommentsRelationManager extends RelationManager
                         TextColumn::make('created_at')
                             ->translateLabel()
                             ->dateTime()
-                            ->color('secondary'),
+                            ->color('gray'),
                     ]),
                     TextColumn::make('comment')
                         ->wrap()
@@ -98,10 +98,10 @@ class CommentsRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\Action::make('attachment')->action(function ($record) {
-                    return response()->download('storage/' . $record->attachments);
+                    return response()->download('storage/'.$record->attachments);
                 })->hidden(fn ($record) => $record->attachments == ''),
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([]);
+            ->groupedBulkActions([]);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
 use App\Models\User;
@@ -29,7 +28,7 @@ class TicketPolicy
 
         // The staff unit can view tickets that have been assigned to them.
         if ($user->hasRole('Staff Unit')) {
-            return $user->id == $ticket->owner_id ||  $ticket->responsible_id == $user->id;
+            return $user->id == $ticket->owner_id || $ticket->responsible_id == $user->id;
         }
 
         // The user can view their own ticket

@@ -10,7 +10,7 @@ class ViewTicket extends ViewRecord
 {
     protected static string $resource = TicketResource::class;
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             Actions\EditAction::make(),

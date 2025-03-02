@@ -6,16 +6,16 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Althinect\FilamentSpatieRolesPermissions\Concerns\HasSuperAdmin;
+use Carbon\Carbon;
+use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * Class User.
@@ -43,7 +43,8 @@ use Althinect\FilamentSpatieRolesPermissions\Concerns\HasSuperAdmin;
  */
 class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 {
-    use SoftDeletes, HasRoles, HasSuperAdmin, HasFactory, Notifiable;
+    use HasFactory, HasRoles, HasSuperAdmin, Notifiable, SoftDeletes;
+
     protected $table = 'users';
 
     protected $casts = [
@@ -121,7 +122,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
      *
      * Only active users can access the filament
      */
-    public function canAccessFilament(): bool
+    public function canAccessPanel(\Filament\Panel $panel): bool
     {
         return auth()->user()->is_active;
     }

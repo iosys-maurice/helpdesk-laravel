@@ -49,7 +49,7 @@ class SocialiteController extends Controller
         $user = User::where('email', $socialUser->getEmail())->first();
 
         // If there are no users.
-        if (!$user) {
+        if (! $user) {
             // Create a new user
             $user = User::create([
                 'name' => $socialUser->getName(),

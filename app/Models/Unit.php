@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Unit extends Model
 {
     use SoftDeletes;
+
     public $timestamps = false;
 
     protected $table = 'units';

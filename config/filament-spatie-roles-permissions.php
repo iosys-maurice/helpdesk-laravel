@@ -15,14 +15,14 @@ return [
      */
     'should_register_on_navigation' => [
         'permissions' => false,
-        'roles' => false
+        'roles' => false,
     ],
 
     'generator' => [
 
         'guard_names' => [
             'web',
-            //'api'
+            // 'api'
         ],
 
         'permission_affixes' => [
@@ -67,8 +67,8 @@ return [
          * Include directories which consists of models.
          */
         'model_directories' => [
-            app_path('Models')
-            //app_path('Domains/Forum')
+            app_path('Models'),
+            // app_path('Domains/Forum')
         ],
 
         /*
@@ -86,19 +86,18 @@ return [
         ],
 
         'excluded_policy_models' => [
-            \App\Models\User::class
+            \App\Models\User::class,
         ],
 
         /*
          * Define any other permission here
          */
         'custom_permissions' => [
-            //'view-log'
+            // 'view-log'
         ],
-
 
         'user_model' => \App\Models\User::class,
 
-        'policies_namespace' => 'App\Policies'
+        'policies_namespace' => 'App\Policies',
     ],
 ];

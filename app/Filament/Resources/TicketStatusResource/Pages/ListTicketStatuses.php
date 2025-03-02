@@ -11,7 +11,7 @@ class ListTicketStatuses extends ListRecords
 {
     protected static string $resource = TicketStatusResource::class;
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make(),
@@ -25,7 +25,7 @@ class ListTicketStatuses extends ListRecords
         ];
     }
 
-    protected function getHeaderWidgetsColumns(): int | array
+    public function getHeaderWidgetsColumns(): int|array
     {
         return 1;
     }

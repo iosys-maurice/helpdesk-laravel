@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ProblemCategory extends Model
 {
     use SoftDeletes;
+
     public $timestamps = false;
 
     protected $table = 'problem_categories';
