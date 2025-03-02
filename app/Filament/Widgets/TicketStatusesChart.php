@@ -15,7 +15,12 @@ class TicketStatusesChart extends ApexChartWidget
     /**
      * Widget Title
      */
-    protected static ?string $heading = 'Ticket Statuses';
+    protected static ?string $heading = 'Ticket Status';
+
+    /**
+     * Defer loading of the chart
+     */
+    protected static bool $deferLoading = true;
 
     /**
      * Chart options (series, labels, types, size, animations...)
@@ -27,7 +32,7 @@ class TicketStatusesChart extends ApexChartWidget
 
         return [
             'chart' => [
-                'type' => 'pie',
+                'type' => 'donut',
                 'height' => 300,
             ],
             'series' => $ticketStatuses->pluck('tickets_count')->toArray(),
