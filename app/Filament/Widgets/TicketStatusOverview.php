@@ -3,10 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\TicketStatus;
-use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class TicketOverview extends BaseWidget
+class TicketStatusOverview extends BaseWidget
 {
     protected function getStats(): array
     {
