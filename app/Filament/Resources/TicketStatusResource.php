@@ -17,7 +17,7 @@ class TicketStatusResource extends Resource
 {
     protected static ?string $model = TicketStatus::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-flag';
 
     protected static ?int $navigationSort = 4;
 
@@ -50,7 +50,8 @@ class TicketStatusResource extends Resource
             ])
             ->filters([])
             ->actions([])
-            ->groupedBulkActions([]);
+            ->groupedBulkActions([])
+            ->deferLoading();
     }
 
     public static function getRelations(): array

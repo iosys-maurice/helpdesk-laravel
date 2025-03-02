@@ -36,7 +36,16 @@ class UnitResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('name')
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('problem_categories_count')
+                    ->counts('problemCategories')
+                    ->label(__('Problem Categories Count'))
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tickets_count')
+                    ->counts('tickets')
+                    ->label(__('Tickets Count'))
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -49,7 +58,8 @@ class UnitResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
                 Tables\Actions\ForceDeleteBulkAction::make(),
                 Tables\Actions\RestoreBulkAction::make(),
-            ]);
+            ])
+            ->deferLoading();
     }
 
     public static function getRelations(): array

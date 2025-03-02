@@ -45,10 +45,16 @@ class ProblemCategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->translateLabel()
-                    ->searchable(),
+                    ->searchable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('unit.name')
                     ->searchable()
-                    ->label(__('Work Unit')),
+                    ->label(__('Work Unit'))
+                    ->wrap(),
+                Tables\Columns\TextColumn::make('tickets_count')
+                    ->counts('tickets')
+                    ->label(__('Tickets Count'))
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -61,7 +67,8 @@ class ProblemCategoryResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
                 Tables\Actions\ForceDeleteBulkAction::make(),
                 Tables\Actions\RestoreBulkAction::make(),
-            ]);
+            ])
+            ->deferLoading();
     }
 
     public static function getRelations(): array
