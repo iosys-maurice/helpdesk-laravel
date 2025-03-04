@@ -42,6 +42,13 @@ class LatestTicketTable extends BaseWidget
                     ->url(route('filament.admin.resources.tickets.create'))
                     ->icon('heroicon-o-plus-circle'),
             ])
+            ->emptyStateActions([
+                Action::make('create')
+                    ->label(__('Create Ticket'))
+                    ->url(route('filament.admin.resources.tickets.create'))
+                    ->icon('heroicon-o-plus-circle')
+                    ->button(),
+            ])
             ->paginated(false);
     }
 
