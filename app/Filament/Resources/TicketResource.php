@@ -115,7 +115,7 @@ class TicketResource extends Resource
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
-                        ->visible(fn () => !auth()
+                        ->visible(fn () => ! auth()
                             ->user()
                             ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
 
@@ -127,7 +127,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => !auth()
+                            fn () => ! auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -140,7 +140,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => !auth()
+                            fn () => ! auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -223,11 +223,6 @@ class TicketResource extends Resource
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
-            ->groupedBulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\ForceDeleteBulkAction::make(),
-                Tables\Actions\RestoreBulkAction::make(),
-            ])
             ->defaultSort('created_at', 'desc')
             ->deferLoading()
             ->persistFiltersInSession();
@@ -241,7 +236,7 @@ class TicketResource extends Resource
                     ->schema(
                         [
                             Section::make(fn (Ticket $record) => $record->title)
-                                ->description(fn (Ticket $record) => __('Created at') . ' ' . $record->created_at->diffForHumans() . ' oleh ' . $record->owner->name)
+                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
                                 ->schema([
                                     TextEntry::make('unit.name')
                                         ->label(__('Work Unit'))
@@ -257,7 +252,8 @@ class TicketResource extends Resource
                                     TextEntry::make('responsible.name')
                                         ->label(__('Responsible'))
                                         ->badge()
-                                        ->columnSpan(1),
+                                        ->columnSpan(1)
+                                        ->visible(fn (Ticket $record) => $record->responsible_id),
                                 ])->columnSpan(2)
                                 ->columns(2)
                                 ->footerActions([
@@ -291,6 +287,16 @@ class TicketResource extends Resource
                                                 ->title(__('The person in charge has changed'))
                                                 ->success()
                                                 ->send();
+
+                                            Notification::make()
+                                                ->title(__('There is a new ticket that is your responsibility.'))
+                                                ->info()
+                                                ->actions([
+                                                    \Filament\Notifications\Actions\Action::make('view')
+                                                        ->url(route('filament.admin.resources.tickets.view', ['record' => $record->id]))
+                                                        ->markAsRead(),
+                                                ])
+                                                ->sendToDatabase(User::find($data['responsible_id']));
                                         })
                                         ->visible(function (Ticket $record) {
 
