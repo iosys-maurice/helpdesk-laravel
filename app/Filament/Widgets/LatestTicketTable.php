@@ -47,6 +47,6 @@ class LatestTicketTable extends BaseWidget
 
     public static function canView(): bool
     {
-        return !auth()->user()->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']);
+        return ! auth()->user()->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']);
     }
 }
