@@ -24,5 +24,9 @@
     "Change the PIC": "Change the PIC",
     "The person in charge has changed": "The person in charge has changed",
     "Additional Information": "Additional Information",
-    "There is a new ticket that is your responsibility.": "There is a new ticket that is your responsibility."
+    "There is a new ticket that is your responsibility.": "There is a new ticket that is your responsibility.",
+    "Set Closed": "Set Closed",
+    "The ticket has been closed": "The ticket has been closed",
+    "Re-Open": "Re-Open",
+    "The ticket has been re-opened": "The ticket has been re-opened"
 }

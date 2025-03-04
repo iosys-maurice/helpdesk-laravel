@@ -304,7 +304,7 @@ class TicketResource extends Resource
                                                 return true;
                                             }
 
-                                            return auth()->user()->hasRole('Admin Unit') && auth()->user()->unit_id == $record->unit_id;
+                                            return auth()->user()->hasRole('Admin Unit') && (auth()->user()->unit_id == $record->unit_id) && ($record->ticket_statuses_id != TicketStatus::CLOSED);
                                         }),
 
                                     Action::make('set-closed')
@@ -320,11 +320,47 @@ class TicketResource extends Resource
                                             Notification::make()
                                                 ->title(__('The ticket has been closed'))
                                                 ->success()
+                                                ->actions([
+                                                    \Filament\Notifications\Actions\Action::make('view')
+                                                        ->url(route('filament.admin.resources.tickets.view', ['record' => $record->id]))
+                                                        ->markAsRead(),
+                                                ])
                                                 ->send()
                                                 ->sendToDatabase($record->owner);
                                         })
                                         ->visible(function (Ticket $record) {
                                             return ($record->responsible_id == auth()->id()) && ($record->ticket_statuses_id != TicketStatus::CLOSED);
+                                        }),
+
+                                    Action::make('re-open')
+                                        ->label(__('Re-Open'))
+                                        ->color('danger')
+                                        ->icon('heroicon-o-lock-open')
+                                        ->requiresConfirmation()
+                                        ->action(function (Ticket $record): void {
+                                            $record->ticket_statuses_id = TicketStatus::OPEN;
+                                            $record->solved_at = null;
+                                            $record->save();
+
+                                            $adminUnits = User::query()
+                                                ->whereHas('roles', function ($query) use ($record) {
+                                                    $query->where('name', 'Admin Unit')
+                                                        ->where('unit_id', $record->unit_id);
+                                                })
+                                                ->get();
+                                            Notification::make()
+                                                ->title(__('The ticket has been re-opened'))
+                                                ->actions([
+                                                    \Filament\Notifications\Actions\Action::make('view')
+                                                        ->url(route('filament.admin.resources.tickets.view', ['record' => $record->id]))
+                                                        ->markAsRead(),
+                                                ])
+                                                ->success()
+                                                ->send()
+                                                ->sendToDatabase($adminUnits);
+                                        })
+                                        ->visible(function (Ticket $record) {
+                                            return ($record->owner_id == auth()->id()) && ($record->ticket_statuses_id == TicketStatus::CLOSED);
                                         }),
                                 ]),
 

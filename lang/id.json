@@ -24,5 +24,9 @@
     "Change the PIC": "Ubah Penanggungjawab",
     "The person in charge has changed": "Penanggungjawab telah diubah",
     "Additional Information": "Informasi Tambahan",
-    "There is a new ticket that is your responsibility.": "Terdapat tiket baru yang menjadi tanggungjawab Anda."
+    "There is a new ticket that is your responsibility.": "Terdapat tiket baru yang menjadi tanggungjawab Anda.",
+    "Set Closed": "Tutup",
+    "The ticket has been closed": "Tiket telah ditutup",
+    "Re-Open": "Buka Kembali",
+    "The ticket has been re-opened": "Tiket telah dibuka kembali"
 }
