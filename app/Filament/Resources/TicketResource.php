@@ -306,6 +306,26 @@ class TicketResource extends Resource
 
                                             return auth()->user()->hasRole('Admin Unit') && auth()->user()->unit_id == $record->unit_id;
                                         }),
+
+                                    Action::make('set-closed')
+                                        ->label(__('Set Closed'))
+                                        ->color('danger')
+                                        ->icon('heroicon-o-check-circle')
+                                        ->requiresConfirmation()
+                                        ->action(function (Ticket $record): void {
+                                            $record->ticket_statuses_id = TicketStatus::CLOSED;
+                                            $record->solved_at = now();
+                                            $record->save();
+
+                                            Notification::make()
+                                                ->title(__('The ticket has been closed'))
+                                                ->success()
+                                                ->send()
+                                                ->sendToDatabase($record->owner);
+                                        })
+                                        ->visible(function (Ticket $record) {
+                                            return ($record->responsible_id == auth()->id()) && ($record->ticket_statuses_id != TicketStatus::CLOSED);
+                                        }),
                                 ]),
 
                             Section::make(__('Additional Information'))
