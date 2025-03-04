@@ -15,6 +15,10 @@ class TicketStatusOverview extends BaseWidget
     {
         $tickets = Ticket::all();
 
+        if (auth()->user()->hasRole('Admin Unit')) {
+            $tickets = Ticket::where('unit_id', auth()->user()->unit_id)->get();
+        }
+
         return [
             Stat::make('Total Tickets', $tickets->count())
                 ->icon('heroicon-o-ticket')
@@ -33,5 +37,10 @@ class TicketStatusOverview extends BaseWidget
                 ->color('success')
                 ->description('Tickets that are closed'),
         ];
+    }
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['Super Admin', 'Admin Unit']);
     }
 }

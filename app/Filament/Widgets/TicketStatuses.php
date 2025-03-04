@@ -17,7 +17,18 @@ class TicketStatuses extends ChartWidget
 
     protected function getData(): array
     {
-        $ticketStatuses = TicketStatus::withCount('tickets')->get();
+        if (auth()->user()->hasRole('Admin Unit')) {
+            $unitId = auth()->user()->unit_id;
+            $ticketStatuses = TicketStatus::whereHas('tickets', function ($query) use ($unitId) {
+                $query->where('unit_id', $unitId);
+            })
+                ->withCount(['tickets as tickets_count' => function ($query) use ($unitId) {
+                    $query->where('unit_id', $unitId);
+                }])
+                ->get();
+        } else {
+            $ticketStatuses = TicketStatus::withCount('tickets')->get();
+        }
 
         return [
             'labels' => $ticketStatuses->pluck('name')->toArray(),
@@ -33,5 +44,10 @@ class TicketStatuses extends ChartWidget
     protected function getType(): string
     {
         return 'doughnut';
+    }
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['Super Admin', 'Admin Unit']);
     }
 }

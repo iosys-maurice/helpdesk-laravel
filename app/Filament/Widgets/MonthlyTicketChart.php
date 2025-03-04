@@ -15,7 +15,12 @@ class MonthlyTicketChart extends ChartWidget
 
     protected function getData(): array
     {
+        $unitId = auth()->user()->unit_id;
+
         $tickets = Ticket::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, COUNT(*) as count')
+            ->when(auth()->user()->hasRole('Admin Unit'), function ($query) use ($unitId) {
+                $query->where('unit_id', $unitId);
+            })
             ->where('created_at', '>=', now()->subMonths(12))
             ->groupBy('month')
             ->orderBy('month')
@@ -35,5 +40,10 @@ class MonthlyTicketChart extends ChartWidget
     protected function getType(): string
     {
         return 'line';
+    }
+
+    public static function canView(): bool
+    {
+        return auth()->user()->hasAnyRole(['Super Admin', 'Admin Unit']);
     }
 }

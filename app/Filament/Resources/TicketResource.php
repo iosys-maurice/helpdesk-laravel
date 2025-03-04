@@ -2,31 +2,30 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
+use App\Filament\Resources\TicketResource\Pages;
+use App\Filament\Resources\TicketResource\RelationManagers\CommentsRelationManager;
+use App\Models\Priority;
+use App\Models\ProblemCategory;
+use App\Models\Ticket;
+use App\Models\TicketStatus;
 use App\Models\Unit;
 use App\Models\User;
-use Filament\Tables;
-use App\Models\Ticket;
-use App\Models\Priority;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\TicketStatus;
-use App\Models\ProblemCategory;
-use Filament\Infolists\Infolist;
-use Filament\Resources\Resource;
+use Filament\Forms;
 use Filament\Forms\Components\Card;
-use Filament\Support\Enums\MaxWidth;
-use Filament\Forms\Components\Select;
-use Filament\Infolists\Components\Grid;
-use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
+use Filament\Infolists\Components\Actions\Action;
+use Filament\Infolists\Components\Grid;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use App\Filament\Resources\TicketResource\Pages;
-use Filament\Infolists\Components\Actions\Action;
+use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TicketResource\RelationManagers\CommentsRelationManager;
 
 class TicketResource extends Resource
 {
@@ -118,7 +117,7 @@ class TicketResource extends Resource
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
-                        ->visible(fn () => !auth()
+                        ->visible(fn () => ! auth()
                             ->user()
                             ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
 
@@ -130,7 +129,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => !auth()
+                            fn () => ! auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -143,7 +142,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => !auth()
+                            fn () => ! auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -175,16 +174,9 @@ class TicketResource extends Resource
                     ->wrap()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('title')
+                    ->description(fn (Ticket $record) => $record->created_at->diffForHumans())
                     ->translateLabel()
                     ->searchable()
-                    ->wrap(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->translateLabel()
-                    ->sortable()
-                    ->since()
-                    ->tooltip(fn (Ticket $record) => $record->created_at)
-                    ->toggleable()
                     ->wrap(),
                 Tables\Columns\TextColumn::make('unit.name')
                     ->searchable()
@@ -281,7 +273,7 @@ class TicketResource extends Resource
                     ->schema(
                         [
                             Section::make(fn (Ticket $record) => $record->title)
-                                ->description(fn (Ticket $record) => __('Created at') . ' ' . $record->created_at->diffForHumans() . ' oleh ' . $record->owner->name)
+                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
                                 ->schema([
                                     TextEntry::make('unit.name')
                                         ->label(__('Work Unit'))
