@@ -19,5 +19,9 @@
     "Owner": "Owner",
     "Login": "Login",
     "Why Use Helpdesk?": "Why Use Helpdesk?",
-    "Reasons": "Helpdesks provide efficient support, centralize communication, streamline workflows, offer self-service options, monitor performance, and enhance the customer experience."
+    "Reasons": "Helpdesks provide efficient support, centralize communication, streamline workflows, offer self-service options, monitor performance, and enhance the customer experience.",
+    "Set PIC": "Set PIC",
+    "Change the PIC": "Change the PIC",
+    "The person in charge has changed": "The person in charge has changed",
+    "Additional Information": "Additional Information"
 }

@@ -115,7 +115,7 @@ class TicketResource extends Resource
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
-                        ->visible(fn () => ! auth()
+                        ->visible(fn () => !auth()
                             ->user()
                             ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
 
@@ -127,7 +127,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -140,7 +140,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -241,7 +241,7 @@ class TicketResource extends Resource
                     ->schema(
                         [
                             Section::make(fn (Ticket $record) => $record->title)
-                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
+                                ->description(fn (Ticket $record) => __('Created at') . ' ' . $record->created_at->diffForHumans() . ' oleh ' . $record->owner->name)
                                 ->schema([
                                     TextEntry::make('unit.name')
                                         ->label(__('Work Unit'))
@@ -256,6 +256,7 @@ class TicketResource extends Resource
                                         ->columnSpanFull(),
                                     TextEntry::make('responsible.name')
                                         ->label(__('Responsible'))
+                                        ->badge()
                                         ->columnSpan(1),
                                 ])->columnSpan(2)
                                 ->columns(2)
@@ -269,7 +270,7 @@ class TicketResource extends Resource
                                                 ->options(function ($record) {
                                                     return User::query()
                                                         ->whereHas('roles', function ($query) use ($record) {
-                                                            $query->where('name', 'Admin Unit')
+                                                            $query->where('name', 'Staff Unit')
                                                                 ->where('unit_id', $record->unit_id);
                                                         })
                                                         ->pluck('name', 'id');
@@ -278,13 +279,26 @@ class TicketResource extends Resource
                                                 ->searchable()
                                                 ->required(),
                                         ])->action(function (array $data, Ticket $record): void {
+                                            if ($record->approved_at == null) {
+                                                $record->approved_at = now();
+                                            }
+
                                             $record->responsible_id = $data['responsible_id'];
+                                            $record->ticket_statuses_id = TicketStatus::ASSIGNED;
                                             $record->save();
 
                                             Notification::make()
                                                 ->title(__('The person in charge has changed'))
                                                 ->success()
                                                 ->send();
+                                        })
+                                        ->visible(function (Ticket $record) {
+
+                                            if (auth()->user()->hasRole('Super Admin')) {
+                                                return true;
+                                            }
+
+                                            return auth()->user()->hasRole('Admin Unit') && auth()->user()->unit_id == $record->unit_id;
                                         }),
                                 ]),
 
