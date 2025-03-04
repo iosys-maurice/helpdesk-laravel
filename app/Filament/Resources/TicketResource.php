@@ -2,29 +2,31 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TicketResource\Pages;
-use App\Filament\Resources\TicketResource\RelationManagers\CommentsRelationManager;
-use App\Models\Priority;
-use App\Models\ProblemCategory;
-use App\Models\Ticket;
-use App\Models\TicketStatus;
+use Filament\Forms;
 use App\Models\Unit;
 use App\Models\User;
-use Filament\Forms;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Select;
+use Filament\Tables;
+use App\Models\Ticket;
+use App\Models\Priority;
 use Filament\Forms\Form;
-use Filament\Infolists\Components\Actions\Action;
+use Filament\Tables\Table;
+use App\Models\TicketStatus;
+use App\Models\ProblemCategory;
+use Filament\Infolists\Infolist;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Card;
+use Filament\Support\Enums\MaxWidth;
+use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\Grid;
+use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Infolist;
-use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\TicketResource\Pages;
+use Filament\Infolists\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\TicketResource\RelationManagers\CommentsRelationManager;
 
 class TicketResource extends Resource
 {
@@ -115,7 +117,7 @@ class TicketResource extends Resource
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
-                        ->visible(fn () => ! auth()
+                        ->visible(fn () => !auth()
                             ->user()
                             ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
 
@@ -127,7 +129,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -140,7 +142,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -179,7 +181,8 @@ class TicketResource extends Resource
                     ->sortable()
                     ->since()
                     ->tooltip(fn (Ticket $record) => $record->created_at)
-                    ->toggleable(),
+                    ->toggleable()
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('unit.name')
                     ->searchable()
                     ->label(__('Work Unit'))
@@ -237,8 +240,27 @@ class TicketResource extends Resource
                         ->pluck('name', 'id'))
                     ->label(__('Responsible'))
                     ->searchable(),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from')
+                            ->label(__('Created From')),
+                        DatePicker::make('created_until')
+                            ->label(__('Created Until')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
                 Tables\Filters\TrashedFilter::make(),
             ])
+            ->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -256,7 +278,7 @@ class TicketResource extends Resource
                     ->schema(
                         [
                             Section::make(fn (Ticket $record) => $record->title)
-                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
+                                ->description(fn (Ticket $record) => __('Created at') . ' ' . $record->created_at->diffForHumans() . ' oleh ' . $record->owner->name)
                                 ->schema([
                                     TextEntry::make('unit.name')
                                         ->label(__('Work Unit'))
