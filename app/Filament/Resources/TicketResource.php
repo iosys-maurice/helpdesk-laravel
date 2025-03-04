@@ -12,7 +12,14 @@ use App\Models\Unit;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\Actions\Action;
+use Filament\Infolists\Components\Grid;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -26,8 +33,6 @@ class TicketResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
 
     protected static ?int $navigationSort = 3;
-
-    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Form $form): Form
     {
@@ -105,6 +110,15 @@ class TicketResource extends Resource
                         ->searchable()
                         ->required(),
 
+                    Forms\Components\Placeholder::make('status')
+                        ->translateLabel()
+                        ->content(fn (
+                            ?Ticket $record,
+                        ): string => $record ? $record->ticketStatus->name : '-')
+                        ->visible(fn () => ! auth()
+                            ->user()
+                            ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
+
                     Forms\Components\Select::make('ticket_statuses_id')
                         ->label(__('Status'))
                         ->options(TicketStatus::all()
@@ -170,7 +184,11 @@ class TicketResource extends Resource
                     ->searchable()
                     ->label(__('Problem Category'))
                     ->wrap()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\IconColumn::make('approved_at')
+                    ->default('-')
+                    ->label(__('Approved'))
+                    ->icon(fn (Ticket $record) => $record->approved_at == null ? 'heroicon-o-x-mark' : 'heroicon-o-check-circle'),
                 Tables\Columns\TextColumn::make('ticketStatus.name')
                     ->label(__('Status'))
                     ->badge()
@@ -213,6 +231,88 @@ class TicketResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->deferLoading()
             ->persistFiltersInSession();
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Grid::make()
+                    ->schema(
+                        [
+                            Section::make(fn (Ticket $record) => $record->title)
+                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
+                                ->schema([
+                                    TextEntry::make('unit.name')
+                                        ->label(__('Work Unit'))
+                                        ->columnSpan(1),
+                                    TextEntry::make('problemCategory.name')
+                                        ->label(__('Problem Category'))
+                                        ->columnSpan(1),
+                                    TextEntry::make('description')
+                                        ->translateLabel()
+                                        ->markdown()
+                                        ->prose()
+                                        ->columnSpanFull(),
+                                    TextEntry::make('responsible.name')
+                                        ->label(__('Responsible'))
+                                        ->columnSpan(1),
+                                ])->columnSpan(2)
+                                ->columns(2)
+                                ->footerActions([
+                                    Action::make('determine-pic')
+                                        ->label(fn (Ticket $record) => $record->responsible_id ? __('Change the PIC') : __('Set PIC'))
+                                        ->icon('heroicon-o-user-plus')
+                                        ->form([
+                                            Select::make('responsible_id')
+                                                ->label(fn (Ticket $record) => $record->responsible_id ? __('Change the PIC') : __('Set PIC'))
+                                                ->options(function ($record) {
+                                                    return User::query()
+                                                        ->whereHas('roles', function ($query) use ($record) {
+                                                            $query->where('name', 'Admin Unit')
+                                                                ->where('unit_id', $record->unit_id);
+                                                        })
+                                                        ->pluck('name', 'id');
+                                                })
+                                                ->preload()
+                                                ->searchable()
+                                                ->required(),
+                                        ])->action(function (array $data, Ticket $record): void {
+                                            $record->responsible_id = $data['responsible_id'];
+                                            $record->save();
+
+                                            Notification::make()
+                                                ->title(__('The person in charge has changed'))
+                                                ->success()
+                                                ->send();
+                                        }),
+                                ]),
+
+                            Section::make(__('Additional Information'))
+                                ->schema([
+                                    TextEntry::make('priority.name')
+                                        ->translateLabel()
+                                        ->badge(),
+                                    TextEntry::make('ticketStatus.name')
+                                        ->translateLabel()
+                                        ->badge(),
+                                    TextEntry::make('updated_at')
+                                        ->translateLabel()
+                                        ->dateTime(),
+                                    TextEntry::make('approved_at')
+                                        ->translateLabel()
+                                        ->dateTime()
+                                        ->columnSpan(1),
+                                    TextEntry::make('solved_at')
+                                        ->translateLabel()
+                                        ->dateTime()
+                                        ->columnSpan(1),
+                                ])->columnSpan(1),
+                        ]
+                    )
+                    ->columns(3),
+            ])
+            ->columns(1);
     }
 
     public static function getRelations(): array

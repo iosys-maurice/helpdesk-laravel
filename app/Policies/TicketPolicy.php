@@ -78,4 +78,9 @@ class TicketPolicy
     {
         return $user->id == $ticket->owner_id;
     }
+
+    public function approve(User $user, Ticket $ticket): bool
+    {
+        return $user->hasRole('Admin Unit') && $ticket->ticket_statuses_id == TicketStatus::OPEN;
+    }
 }

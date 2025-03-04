@@ -17,7 +17,7 @@ class ViewUser extends ViewRecord
             Actions\EditAction::make(),
             Impersonate::make()
                 ->record($this->getRecord())
-                ->redirectTo(route('filament.pages.dashboard')),
+                ->redirectTo(route('filament.admin.pages.dashboard')),
         ];
     }
 }

@@ -29,7 +29,7 @@ class SocialiteController extends Controller
         Auth()->login($authUser, true);
 
         // setelah login redirect ke dashboard
-        return redirect()->route('filament.pages.dashboard');
+        return redirect()->route('filament.admin.pages.dashboard');
     }
 
     public function findOrCreateUser($socialUser, $provider)

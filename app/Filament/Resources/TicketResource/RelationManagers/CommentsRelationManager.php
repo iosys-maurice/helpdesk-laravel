@@ -71,6 +71,7 @@ class CommentsRelationManager extends RelationManager
 
                     return $data;
                 })
+                    ->createAnother(false)
                     ->label('Tambah Komentar')
                     ->after(function (Livewire $livewire) {
                         $ticket = $livewire->ownerRecord;
@@ -102,6 +103,13 @@ class CommentsRelationManager extends RelationManager
                 })->hidden(fn ($record) => $record->attachments == ''),
                 Tables\Actions\EditAction::make(),
             ])
-            ->groupedBulkActions([]);
+            ->groupedBulkActions([])
+            ->paginated(false)
+            ->deferLoading();
+    }
+
+    public function isReadOnly(): bool
+    {
+        return false;
     }
 }
