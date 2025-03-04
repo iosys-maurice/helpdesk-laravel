@@ -114,6 +114,7 @@ class TicketResource extends Resource
 
                     Forms\Components\Placeholder::make('status')
                         ->translateLabel()
+                        ->hiddenOn('create')
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
@@ -148,12 +149,14 @@ class TicketResource extends Resource
                         ),
 
                     Forms\Components\Placeholder::make('created_at')
+                        ->hiddenOn('create')
                         ->translateLabel()
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->created_at->diffForHumans() : '-'),
 
                     Forms\Components\Placeholder::make('updated_at')
+                        ->hiddenOn('create')
                         ->translateLabel()
                         ->content(fn (
                             ?Ticket $record,

@@ -48,6 +48,10 @@ class TicketPolicy
      */
     public function update(User $user, Ticket $ticket): bool
     {
+        if ($ticket->ticket_statuses_id != TicketStatus::OPEN) {
+            return false;
+        }
+
         return $this->view($user, $ticket);
     }
 
