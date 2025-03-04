@@ -115,7 +115,7 @@ class TicketResource extends Resource
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
-                        ->visible(fn () => ! auth()
+                        ->visible(fn () => !auth()
                             ->user()
                             ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
 
@@ -127,7 +127,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -140,7 +140,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => ! auth()
+                            fn () => !auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -168,7 +168,7 @@ class TicketResource extends Resource
                     ->translateLabel()
                     ->searchable()
                     ->wrap()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('title')
                     ->translateLabel()
                     ->searchable()
@@ -180,6 +180,11 @@ class TicketResource extends Resource
                     ->since()
                     ->tooltip(fn (Ticket $record) => $record->created_at)
                     ->toggleable(),
+                Tables\Columns\TextColumn::make('unit.name')
+                    ->searchable()
+                    ->label(__('Work Unit'))
+                    ->wrap()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('problemCategory.name')
                     ->searchable()
                     ->label(__('Problem Category'))
@@ -193,6 +198,14 @@ class TicketResource extends Resource
                     ->label(__('Status'))
                     ->badge()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('priority.name')
+                    ->label(__('Priority'))
+                    ->badge()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('responsible.name')
+                    ->label(__('Responsible'))
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('unit_id')
@@ -236,7 +249,7 @@ class TicketResource extends Resource
                     ->schema(
                         [
                             Section::make(fn (Ticket $record) => $record->title)
-                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
+                                ->description(fn (Ticket $record) => __('Created at') . ' ' . $record->created_at->diffForHumans() . ' oleh ' . $record->owner->name)
                                 ->schema([
                                     TextEntry::make('unit.name')
                                         ->label(__('Work Unit'))
