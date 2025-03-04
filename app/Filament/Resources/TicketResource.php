@@ -183,10 +183,26 @@ class TicketResource extends Resource
                     ->options(Unit::all()
                         ->pluck('name', 'id'))
                     ->label(__('Work Unit'))
-                    ->searchable(),
+                    ->searchable()
+                    ->required()
+                    ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                        $department = Unit::find($state);
+                        if (isset($department->id)) {
+                            $problemCategoryId = (int) $get('problem_category_id');
+                            if ($problemCategoryId && $problemCategory = ProblemCategory::find($problemCategoryId)) {
+                                if ($problemCategory->department_id !== $department->id) {
+                                    $set('problem_category_id', null);
+                                }
+                            }
+                        }
+                    })
+                    ->reactive(),
                 Tables\Filters\SelectFilter::make('problem_category_id')
-                    ->options(ProblemCategory::all()
-                        ->pluck('name', 'id'))
+                    ->options(function (callable $get, callable $set) {
+                        $problem = ProblemCategory::where('department_id', ($get('department_id')));
+
+                        return $problem->pluck('name', 'id');
+                    })
                     ->label(__('Problem Category'))
                     ->searchable(),
                 Tables\Filters\SelectFilter::make('priority_id')
