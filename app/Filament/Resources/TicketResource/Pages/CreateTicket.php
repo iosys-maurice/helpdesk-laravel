@@ -28,7 +28,7 @@ class CreateTicket extends CreateRecord
         $adminUnits = User::query()
             ->whereHas('roles', function ($query) use ($record) {
                 $query->where('name', 'Admin Unit')
-                    ->where('unit_id', $record->unit_id);
+                    ->where('unit_id', $record->unit_id); // @phpstan-ignore-line
             })
             ->get();
         Notification::make()
@@ -36,7 +36,7 @@ class CreateTicket extends CreateRecord
             ->title(__('There is a new ticket that needs to be handled'))
             ->actions([
                 \Filament\Notifications\Actions\Action::make('view')
-                    ->url(route('filament.admin.resources.tickets.view', ['record' => $record->id]))
+                    ->url(route('filament.admin.resources.tickets.view', ['record' => $record->id])) // @phpstan-ignore-line
                     ->markAsRead(),
             ])
             ->sendToDatabase($adminUnits);
