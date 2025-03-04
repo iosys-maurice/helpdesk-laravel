@@ -115,7 +115,7 @@ class TicketResource extends Resource
                         ->content(fn (
                             ?Ticket $record,
                         ): string => $record ? $record->ticketStatus->name : '-')
-                        ->visible(fn () => !auth()
+                        ->visible(fn () => ! auth()
                             ->user()
                             ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit'])),
 
@@ -127,7 +127,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => !auth()
+                            fn () => ! auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit', 'Staff Unit']),
                         ),
@@ -140,7 +140,7 @@ class TicketResource extends Resource
                         ->required()
                         ->hiddenOn('create')
                         ->hidden(
-                            fn () => !auth()
+                            fn () => ! auth()
                                 ->user()
                                 ->hasAnyRole(['Super Admin', 'Admin Unit']),
                         ),
@@ -230,6 +230,13 @@ class TicketResource extends Resource
                     ->multiple()
                     ->label(__('Status'))
                     ->searchable(),
+                Tables\Filters\SelectFilter::make('responsible_id')
+                    ->options(User::whereHas('roles', function ($query) {
+                        $query->where('name', 'Staff Unit');
+                    })
+                        ->pluck('name', 'id'))
+                    ->label(__('Responsible'))
+                    ->searchable(),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
@@ -249,7 +256,7 @@ class TicketResource extends Resource
                     ->schema(
                         [
                             Section::make(fn (Ticket $record) => $record->title)
-                                ->description(fn (Ticket $record) => __('Created at') . ' ' . $record->created_at->diffForHumans() . ' oleh ' . $record->owner->name)
+                                ->description(fn (Ticket $record) => __('Created at').' '.$record->created_at->diffForHumans().' oleh '.$record->owner->name)
                                 ->schema([
                                     TextEntry::make('unit.name')
                                         ->label(__('Work Unit'))
